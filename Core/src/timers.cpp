@@ -6,6 +6,7 @@
  */
 
 #include "timers.h"
+#include "gpio.h"
 
 void Timer1::Init(uint16_t pwmFrequnce){
 
@@ -43,6 +44,7 @@ void Timer1::Init(uint16_t pwmFrequnce){
 
 	/* Generate update event */
 	SET_BIT(TIM1->EGR, TIM_EGR_UG);
+	CLEAR_BIT(TIM1->SR, TIM_SR_UIF);
 
 	/*
 	 * Capture/Compare Mode Configuration
@@ -77,6 +79,7 @@ void Timer1::Init(uint16_t pwmFrequnce){
 
 	/* Generate Capture/Compare control update event */
 	SET_BIT(TIM1->EGR, TIM_EGR_COMG);
+	CLEAR_BIT(TIM1->SR, TIM_SR_COMIF);
 
 	/*
 	 * Enable Timer 1 Update Interrupt
@@ -86,34 +89,79 @@ void Timer1::Init(uint16_t pwmFrequnce){
 	NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
 }
 
-void Timer6::Init(){
+void Timer2::Init(){
 	/*
-	 * Timer 6 Clock Enable
+	 * Timer 2 Clock Enable
 	 * f = 108 MHz
 	 */
-	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM6EN);
-
-	WRITE_REG(TIM6->CNT, 0);		// Resetting timer
-	WRITE_REG(TIM6->PSC, 107);		// T = 1 us
-	WRITE_REG(TIM6->ARR, 0);
+	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM2EN);
 
 	/*
-	 * Enable Timer 6 Update Interrupt
+	 * Timer 2 Pins configuration
 	 */
-	SET_BIT(TIM6->DIER, TIM_DIER_UIE);
-	NVIC_SetPriority(TIM6_DAC_IRQn, 0);
-	NVIC_EnableIRQ(TIM6_DAC_IRQn);
-}
+	PinsInit();
 
-void Timer7::Init(){
 	/*
-	 * Timer 7 Clock Enable
-	 * f = 108 MHz
+	 * Setting CNT, ARR and PSC values
 	 */
-	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM7EN);
+	WRITE_REG(TIM2->CNT, 0x00000000);		// Resetting timer
+	WRITE_REG(TIM2->PSC, 107);		// T = 1 us
+	WRITE_REG(TIM2->ARR, 0xFFFFFFFF);
 
-	WRITE_REG(TIM7->CNT, 0);		// Resetting timer
-	WRITE_REG(TIM6->PSC, 107);		// T = 1 us
-	WRITE_REG(TIM6->ARR, 0xFFFF);
+	/* Generate update event */
+	SET_BIT(TIM2->EGR, TIM_EGR_UG);
+	CLEAR_BIT(TIM2->SR, TIM_SR_UIF);
+
+	/* Timer input XOR function enabled */
+	SET_BIT(TIM2->CR2, TIM_CR2_TI1S);
+
+	/*
+	 * Slave Mode Configuration
+	 *
+	 * Reset Mode
+	 * Trigger selection: Filtered Timer Input 1 (TI1FP1)
+	 */
+	SET_BIT(TIM2->SMCR, TIM_SMCR_SMS_2 |
+						TIM_SMCR_TS_0 | TIM_SMCR_TS_2);
+
+	/*
+	 * Input capture mode configuration
+	 *
+	 * CC1 channel is configured as input, IC1 is mapped on TI1
+	 * Input capture 1 filter: fSAMPLING=fDTS/32, N=8 -> 1us
+	 * Polarity: noninverted/both edges
+	 */
+	SET_BIT(TIM2->CCMR1, TIM_CCMR1_CC1S_0 |
+						 TIM_CCMR1_IC1F);
+	SET_BIT(TIM2->CCER, TIM_CCER_CC1E |
+						TIM_CCER_CC1P | TIM_CCER_CC1NP);
+
+	/*
+	 * Enable Timer 2 Capture/Compare 1 interrupt
+	 */
+	SET_BIT(TIM2->DIER, TIM_DIER_CC1IE);
+	NVIC_SetPriority(TIM2_IRQn, 0);
+	NVIC_EnableIRQ(TIM2_IRQn);
+
+	SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM2_STOP);
 
 }
+
+void Timer2::PinsInit(){
+	/*
+	 * Ports Clock Enable
+	 */
+	GPIO_PortClockInit(HALL1_IN_PORT);
+	GPIO_PortClockInit(HALL23_IN_PORT);
+
+	/*
+	 * Timer 2 Pins
+	 * PA15 -> HALL1_IN
+	 * PB3  -> HALL2_IN
+	 * PB10 -> HALL3_IN
+	 */
+	GPIO_AFPinInit(HALL1_IN_PIN, HALL1_IN_PORT, PushPull, VeryHigh, NoPull, AF1);
+	GPIO_AFPinInit(HALL2_IN_PIN, HALL23_IN_PORT, PushPull, VeryHigh, NoPull, AF1);
+	GPIO_AFPinInit(HALL3_IN_PIN, HALL23_IN_PORT, PushPull, VeryHigh, NoPull, AF1);
+}
+

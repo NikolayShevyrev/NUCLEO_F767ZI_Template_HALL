@@ -20,6 +20,7 @@ void GPIO_Init(void){
 	 */
 	GPIO_PortClockInit(GPIOB);
 	GPIO_PortClockInit(GPIOC);
+	GPIO_PortClockInit(HALL_OUT_PORT);
 
 	/*
 	 * User LEDs
@@ -37,4 +38,10 @@ void GPIO_Init(void){
 	 */
 	GPIO_InputPinInit(BUTTON_PIN, BUTTON_PORT, NoPull);
 
+	/*
+	 * Hall Output
+	 */
+	GPIO_OutputPinInit(HALL1_OUT_PIN, HALL_OUT_PORT, PushPull, High, NoPull);
+	GPIO_OutputPinInit(HALL2_OUT_PIN, HALL_OUT_PORT, PushPull, High, NoPull);
+	GPIO_OutputPinInit(HALL3_OUT_PIN, HALL_OUT_PORT, PushPull, High, NoPull);
 }

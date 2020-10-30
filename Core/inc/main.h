@@ -28,10 +28,22 @@ void SystemClock_Config(void);
 #define DAC2_PIN 5
 #define DAC_PORT GPIOA
 
+#define HALL1_OUT_PIN 4
+#define HALL2_OUT_PIN 5
+#define HALL3_OUT_PIN 6
+#define HALL_OUT_PORT GPIOE
+
+#define HALL1_IN_PIN 15
+#define HALL2_IN_PIN 3
+#define HALL3_IN_PIN 10
+#define HALL1_IN_PORT GPIOA
+#define HALL23_IN_PORT GPIOB
+
 #define UART4_RX_PIN 0
 #define UART4_TX_PIN 1
 #define UART4_PORT GPIOD
 
 #define FPWM (uint16_t)20000
+
 
 #endif /* CORE_INC_MAIN_H_ */

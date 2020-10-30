@@ -11,7 +11,7 @@
 #include "main.h"
 
 class Timer {
-private:
+protected:
 	TIM_TypeDef * timer_;
 public:
 	Timer(TIM_TypeDef * timer) :
@@ -26,7 +26,7 @@ public:
 
 	void Stop() const { CLEAR_BIT(timer_->CR1, TIM_CR1_CEN); }
 
-	void ResetCNT() const { WRITE_REG(timer_->CNT, 0); }
+	void ResetCNT() const { CLEAR_REG(timer_->CNT); }
 
 	void SetCNT(uint16_t cnt) const { WRITE_REG(timer_->CNT, cnt); }
 
@@ -41,6 +41,8 @@ public:
 	uint16_t GetPSC() const { return READ_REG(timer_->PSC); }
 
 	void ClearUIF()  const  { CLEAR_BIT(timer_->SR, TIM_SR_UIF); }
+
+	void ClearSR()  const  { CLEAR_REG(timer_->SR); }
 
 };
 
@@ -125,6 +127,19 @@ public:
 
 };
 
+class Timer2 : public Timer {
+public:
+	Timer2() : Timer(TIM2) {
+	}
+
+	virtual void Init();
+
+	void PinsInit();
+
+	uint32_t GetCCR1() const { return READ_REG(timer_->CCR1); }
+};
+
+
 class Timer6 : public Timer {
 public:
 	Timer6() : Timer(TIM6) {
@@ -144,41 +159,5 @@ public:
 	virtual void Init();
 };
 
-/* Function prototypes -----------------------------------------------*/
-/*void Timer1_Init(void);
-void Timer6_Init(void);
-void Timer7_Init(void);
-
-static inline void TimerStart(TIM_TypeDef * timer){
-	SET_BIT(timer->CR1, TIM_CR1_CEN);
-}
-
-static inline void TimerStop(TIM_TypeDef * timer){
-	CLEAR_BIT(timer->CR1, TIM_CR1_CEN);
-}
-
-static inline void TimerResetCNT(TIM_TypeDef * timer){
-	WRITE_REG(timer->CNT, 0);
-}
-
-static inline void TimerSetCNT(TIM_TypeDef * timer, uint16_t cnt){
-	WRITE_REG(timer->CNT, cnt);
-}
-
-static inline uint16_t TimerGetCNT(TIM_TypeDef * timer){
-	return READ_REG(timer->CNT);
-}
-
-static inline void Timer1SetDuty(uint16_t duty){
-	extern uint16_t ARR_value;
-	if(duty < ARR_value){
-		duty = ARR_value - duty;
-	} else {
-		duty = 0;
-	}
-	WRITE_REG(TIM1->CCR1, duty);
-	WRITE_REG(TIM1->CCR2, duty);
-	WRITE_REG(TIM1->CCR3, duty);
-}*/
 
 #endif /* INC_TIMERS_H_ */
