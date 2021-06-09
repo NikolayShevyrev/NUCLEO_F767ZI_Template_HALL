@@ -12,32 +12,52 @@
 void DelayUS(uint32_t us);
 void DelayMS(uint32_t ms);
 
+enum DelayState{
+	Off,
+	On
+};
+
 class NonBlockingDelay {
 private:
-	uint16_t limit;
-	uint16_t counter;
-	bool flag;
+	uint32_t limit;
+	uint32_t counter;
+	DelayState state;
 public:
 	NonBlockingDelay() :
-		limit(0), counter(0), flag(false) {
+		limit(0), counter(0), state(Off) {
 	}
 
-	void Init(uint16_t input){
+	bool Start(uint32_t input){
+		if(state == On){
+			return false;
+		}
+
 		limit = input;
 		counter = 0;
-		flag = true;
+		state = On;
+		return true;
+	}
+
+	void Stop(){
+		limit = 0;
+		counter = 0;
+		state = Off;
 	}
 
 	void Tick(){
+		if(state == Off){
+			return;
+		}
+
 		if((++counter) >= limit){
-			flag = false;
+			state = Off;
 			limit = 0;
 			counter = 0;
 		}
 	}
 
-	bool GetFlag(){
-		return flag;
+	DelayState GetState(){
+		return state;
 	}
 
 };

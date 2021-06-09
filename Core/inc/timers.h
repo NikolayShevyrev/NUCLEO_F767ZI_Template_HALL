@@ -77,6 +77,12 @@ public:
 
 	virtual void Init(uint16_t pwmFrequnce);
 
+	void PinsInit();
+
+	uint16_t GetPWMPeriod(){
+		return period_;
+	}
+
 	void PWMOutputsOn(){
 		SET_BIT(TIM1->BDTR, TIM_BDTR_MOE);
 	}
@@ -149,9 +155,6 @@ public:
 };
 
 class Timer7 : public Timer {
-public:
-	uint16_t value;
-	uint16_t average;
 public:
 	Timer7() : Timer(TIM7) {
 		}

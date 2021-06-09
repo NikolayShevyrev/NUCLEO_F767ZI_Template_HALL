@@ -30,6 +30,10 @@ public:
 		buffer.fill(0);
 	}
 
+	void FillBuffer(T value){
+		buffer.fill(value);
+	}
+
 	T Calc(T value){
 		sum = sum + (value - buffer[index]);
 		buffer[index] = value;

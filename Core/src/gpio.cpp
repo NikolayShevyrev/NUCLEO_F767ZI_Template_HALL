@@ -29,9 +29,13 @@ void GPIO_Init(void){
 	 * PB7 	= LD2 blue
 	 * PB14 = LD3 red
 	 */
-	GPIO_OutputPinInit(LD1_PIN, LD_PORT, PushPull, High, NoPull);
-	GPIO_OutputPinInit(LD2_PIN, LD_PORT, PushPull, High, NoPull);
-	GPIO_OutputPinInit(LD3_PIN, LD_PORT, PushPull, High, NoPull);
+	//GPIO_OutputPinInit(LD1_PIN, LD_PORT, PushPull, High, NoPull);
+	//GPIO_OutputPinInit(LD2_PIN, LD_PORT, PushPull, High, NoPull);
+	//GPIO_OutputPinInit(LD3_PIN, LD_PORT, PushPull, High, NoPull);
+	/*
+	 * PB2 = LEDX Red
+	 */
+	GPIO_OutputPinInit(LEDX_PIN, LEDX_PORT, PushPull, High, NoPull);
 
 	/*
 	 * User Button = PC13

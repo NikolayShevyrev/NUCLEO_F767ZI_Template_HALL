@@ -5,6 +5,7 @@
  *      Author: Nikolay Shevyrev
  */
 
+#include <sixstepcomm.h>
 #include "timers.h"
 #include "main.h"
 #include "delay.h"
@@ -23,16 +24,26 @@ void TIM1_UP_TIM10_IRQHandler(void) {
 
 	extern Timer1 timer1;
 	extern NonBlockingDelay nbDelay;
+	extern SixStepCommutation Motor;
+	extern States currentState;
 
 	timer1.ClearUIF();
+
+	if(currentState == StartingState){
+		Motor.Start();
+	}
 
 	nbDelay.Tick();
 
 }
 
+void TIM6_DAC_IRQHandler(void) {
+	extern Timer6 timer6;
 
+	timer6.ClearUIF();
+}
 
-void TIM2_IRQHandler(void) {
+/*void TIM2_IRQHandler(void) {
 
 	extern Timer2 timer2;
 	extern uint32_t CCR_value;
@@ -43,9 +54,9 @@ void TIM2_IRQHandler(void) {
 
 	CCR_value = rpmFilter.Calc(CCR_value);
 
-	GPIO_TogglePin(LD1_PIN, LD_PORT);
+	GPIO_TogglePin(LD3_PIN, LD_PORT);
 
-}
+}*/
 
 
 #ifdef __cplusplus

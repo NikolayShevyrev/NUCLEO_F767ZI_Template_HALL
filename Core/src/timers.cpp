@@ -19,6 +19,8 @@ void Timer1::Init(uint16_t pwmFrequnce){
 	 */
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_TIM1EN);
 
+	PinsInit();
+
 	/*
 	 * Timer 1 CR1 Configuration
 	 *
@@ -30,10 +32,14 @@ void Timer1::Init(uint16_t pwmFrequnce){
 	/*
 	 * Timer 1 CR2 Configuration
 	 *
-	 * Master mode selection: OC1REF signal is used as trigger output
+	 * Master mode selection: Update event l is used as trigger output
 	 * Capture/compare preloaded control: CCxE, CCxNE and OCxM bits are preloaded
 	*/
-	SET_BIT(TIM1->CR2, TIM_CR2_MMS_2 | TIM_CR2_CCPC);
+	SET_BIT(TIM1->CR2, TIM_CR2_MMS_1 | TIM_CR2_CCPC);
+
+	SET_BIT(TIM1->CCMR1, TIM_CCMR1_OC1PE |
+						 TIM_CCMR1_OC2PE );
+	SET_BIT(TIM1->CCMR2, TIM_CCMR2_OC3PE );
 
 	/*
 	 * Set ARR, PSC and RCR values
@@ -46,21 +52,22 @@ void Timer1::Init(uint16_t pwmFrequnce){
 	SET_BIT(TIM1->EGR, TIM_EGR_UG);
 	CLEAR_BIT(TIM1->SR, TIM_SR_UIF);
 
+
+	/*
+	 * Enabling Capture/Compare channels
+	 */
+	SET_BIT(TIM1->CCER, /*TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E |*/
+						TIM_CCER_CC1NE | TIM_CCER_CC2NE | TIM_CCER_CC3NE);
+
 	/*
 	 * Capture/Compare Mode Configuration
 	 *
 	 * Output Compare preload enabled
 	 * Output Compare mode: PWM mode 2
 	 */
-	SET_BIT(TIM1->CCMR1, TIM_CCMR1_OC1PE | TIM_CCMR1_OC1M |
-						 TIM_CCMR1_OC2PE | TIM_CCMR1_OC2M);
-	SET_BIT(TIM1->CCMR2, TIM_CCMR2_OC3PE | TIM_CCMR2_OC3M);
-
-	/*
-	 * Enabling Capture/Compare channels
-	 */
-	SET_BIT(TIM1->CCER, TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E |
-						TIM_CCER_CC1NE | TIM_CCER_CC2NE | TIM_CCER_CC3NE);
+	SET_BIT(TIM1->CCMR1, 		TIM_CCMR1_OC1M_0|TIM_CCMR1_OC1M_1|TIM_CCMR1_OC1M_2);
+	SET_BIT(TIM1->CCMR1,		TIM_CCMR1_OC2M_0|TIM_CCMR1_OC2M_1|TIM_CCMR1_OC2M_2);
+	SET_BIT(TIM1->CCMR2, 		TIM_CCMR2_OC3M_0|TIM_CCMR2_OC3M_1|TIM_CCMR2_OC3M_2);
 
 	/*
 	 * Set defaulte Capture/Compare values: 50% duty sycle
@@ -75,7 +82,7 @@ void Timer1::Init(uint16_t pwmFrequnce){
 	 * Dead time = 2.5 us
 	 */
 	SET_BIT(TIM1->BDTR, TIM_BDTR_OSSI | TIM_BDTR_OSSR);
-	SET_BIT(TIM1->BDTR, 0x00D5);
+	//SET_BIT(TIM1->BDTR, 0x00D5);
 
 	/* Generate Capture/Compare control update event */
 	SET_BIT(TIM1->EGR, TIM_EGR_COMG);
@@ -87,6 +94,31 @@ void Timer1::Init(uint16_t pwmFrequnce){
 	SET_BIT(TIM1->DIER, TIM_DIER_UIE);
 	NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 0);
 	NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+}
+
+void Timer1::PinsInit(){
+	/*
+	 * Ports Clock Enable
+	 */
+	GPIO_PortClockInit(UH_PORT);
+	GPIO_PortClockInit(UL_PORT);
+
+	/*
+	 * PWM Pins
+	 * PA8 	-> UH
+	 * PB15 -> UL
+	 * PA9	-> VH
+	 * PB0  -> VL
+	 * PA10 -> WH
+	 * PB1  -> WL
+	 */
+	//GPIO_AFPinInit(UH_PIN, UH_PORT, PushPull, VeryHigh, NoPull, AF1);
+	//GPIO_AFPinInit(VH_PIN, VH_PORT, PushPull, VeryHigh, NoPull, AF1);
+	//GPIO_AFPinInit(WH_PIN, WH_PORT, PushPull, VeryHigh, NoPull, AF1);
+	GPIO_AFPinInit(UL_PIN, UL_PORT, PushPull, VeryHigh, NoPull, AF1);
+	GPIO_AFPinInit(VL_PIN, VL_PORT, PushPull, VeryHigh, NoPull, AF1);
+	GPIO_AFPinInit(WL_PIN, WL_PORT, PushPull, VeryHigh, NoPull, AF1);
+
 }
 
 void Timer2::Init(){
@@ -165,3 +197,41 @@ void Timer2::PinsInit(){
 	GPIO_AFPinInit(HALL3_IN_PIN, HALL23_IN_PORT, PushPull, VeryHigh, NoPull, AF1);
 }
 
+void Timer7::Init(){
+	/*
+	 * Timer 7 Clock Enable
+	 * f = 108 MHz
+	 */
+	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM7EN);
+
+	/*
+	 * Setting CNT, ARR and PSC values
+	 */
+	WRITE_REG(TIM7->CNT, 0x0000);		// Resetting timer
+	WRITE_REG(TIM7->PSC, 107);			// T = 1 us
+	WRITE_REG(TIM7->ARR, 0xFFFF);
+
+}
+
+void Timer6::Init(){
+	/*
+	 * Timer 6 Clock Enable
+	 * f = 108 MHz
+	 */
+	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM6EN);
+
+	/*
+	 * Setting CNT, ARR and PSC values
+	 */
+	WRITE_REG(TIM6->CNT, 0x0000);		// Resetting timer
+	WRITE_REG(TIM6->PSC, 107);			// T = 1 us
+	WRITE_REG(TIM6->ARR, 0x0000);
+
+	/*
+	 * Enable Timer 6 Update Interrupt
+	 */
+	SET_BIT(TIM6->DIER, TIM_DIER_UIE);
+	NVIC_SetPriority(TIM6_DAC_IRQn, 0);
+	NVIC_EnableIRQ(TIM6_DAC_IRQn);
+
+}
