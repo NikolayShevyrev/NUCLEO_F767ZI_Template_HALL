@@ -8,6 +8,9 @@
 #ifndef INC_STM32F7XX_IT_H_
 #define INC_STM32F7XX_IT_H_
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 /* Functions prototypes ---------------------------------------------*/
 void NMI_Handler(void);
@@ -19,6 +22,10 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* INC_STM32F7XX_IT_H_ */

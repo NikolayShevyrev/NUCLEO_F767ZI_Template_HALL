@@ -20,7 +20,7 @@ void GPIO_Init(void){
 	 */
 	GPIO_PortClockInit(GPIOB);
 	GPIO_PortClockInit(GPIOC);
-	GPIO_PortClockInit(HALL_OUT_PORT);
+	GPIO_PortClockInit(RELAY_OUT_PORT);
 
 	/*
 	 * User LEDs
@@ -29,13 +29,13 @@ void GPIO_Init(void){
 	 * PB7 	= LD2 blue
 	 * PB14 = LD3 red
 	 */
-	//GPIO_OutputPinInit(LD1_PIN, LD_PORT, PushPull, High, NoPull);
-	//GPIO_OutputPinInit(LD2_PIN, LD_PORT, PushPull, High, NoPull);
-	//GPIO_OutputPinInit(LD3_PIN, LD_PORT, PushPull, High, NoPull);
+	GPIO_OutputPinInit(LD1_PIN, LD_PORT, PushPull, High, NoPull);
+	GPIO_OutputPinInit(LD2_PIN, LD_PORT, PushPull, High, NoPull);
+	GPIO_OutputPinInit(LD3_PIN, LD_PORT, PushPull, High, NoPull);
 	/*
 	 * PB2 = LEDX Red
 	 */
-	GPIO_OutputPinInit(LEDX_PIN, LEDX_PORT, PushPull, High, NoPull);
+	//GPIO_OutputPinInit(LEDX_PIN, LEDX_PORT, PushPull, High, NoPull);
 
 	/*
 	 * User Button = PC13
@@ -45,7 +45,6 @@ void GPIO_Init(void){
 	/*
 	 * Hall Output
 	 */
-	GPIO_OutputPinInit(HALL1_OUT_PIN, HALL_OUT_PORT, PushPull, High, NoPull);
-	GPIO_OutputPinInit(HALL2_OUT_PIN, HALL_OUT_PORT, PushPull, High, NoPull);
-	GPIO_OutputPinInit(HALL3_OUT_PIN, HALL_OUT_PORT, PushPull, High, NoPull);
+	GPIO_OutputPinInit(RELAY_1_OUT_PIN, RELAY_OUT_PORT, PushPull, High, NoPull);
+	GPIO_OutputPinInit(RELAY_2_OUT_PIN, RELAY_OUT_PORT, PushPull, High, NoPull);
 }

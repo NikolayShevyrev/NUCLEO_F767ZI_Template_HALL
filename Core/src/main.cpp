@@ -5,43 +5,40 @@
  *      Author: Nikolay Shevyrev
  */
 
-#include <sixstepcomm.h>
 #include "main.h"
 #include "delay.h"
 #include "gpio.h"
-#include "uart.h"
-#include "timers.h"
 #include "adc.h"
 #include "dfilter.h"
-#include "settings.h"
+#include "systick.h"
 
 
 /* Function prototypes -----------------------------------------------*/
 void CheckButton(void);
 
-/* Variables ---------------------------------------------------------*/
-SixStepCommutation Motor;
 
-Timer1 timer1;
-Timer7 timer7;
-Timer6 timer6;
+void isolation_measurement(void)
+{
+	RELAY_ON(RELAY_1);
 
-NonBlockingDelay nbDelay;
+	delay_ms(500);
 
-dFilter<uint16_t, 4> rpmFilter;
+	RELAY_OFF(RELAY_1);
+	RELAY_OFF(RELAY_2);
 
-SixStepCommSettings settings;
+	delay_ms(500);
 
-States currentState = StoppedState;
-bool fStartUp = false;
+	RELAY_ON(RELAY_2);
 
-const int n = 10;
-std::array<int, n> g;
+	delay_ms(500);
 
-const uint16_t HALL_STATES_CLKW[6] = {0x0001,0x0005,0x0004,0x0006,0x0002,0x0003};
+	RELAY_OFF(RELAY_1);
+	RELAY_OFF(RELAY_2);
 
-uint32_t CCR_value, dvalue = 10000;
+	delay_ms(500);
+}
 
+bool meas_on_flag = false;
 
 /**
   * @brief  The application entry point.
@@ -51,43 +48,26 @@ int main(){
 
 	SystemClock_Config();
 
+
 	GPIO_Init();
 
-	ADC_Init();
+	//ADC_Init();
 
-	timer1.Init(FPWM);
+	//AllADCsOn();
 
-	timer7.Init();
+	//AllADCsStartConv();
 
-	// Fill Motor Settings
-	FillSixStepCommSettings(settings);
-
-	//Init motor
-	Motor.Init(settings, timer7.GetPSC(), FPWM, timer1.GetPWMPeriod());
-	Motor.SetDiraction(Clockwise);
-
-	BEMFPullHigh();
-	AllADCsOn();
-	AllADCsStartConv();
-
-	timer1.Start();
-
-	timer1.PWMOutputsOn();
-
-	//timer2.Init();
-
-	//uint8_t i = 0;
-
-	//timer2.Start();
+	systick_config();
 
 	/* Infinite loop */
-	while(1){
-		//WRITE_REG(HALL_OUT_PORT->ODR, (HALL_STATES_CLKW[i] << 4));
-		//if((++i) > 5) { i = 0; }
-		GPIO_TogglePin(LD3_PIN, LD_PORT);
-		GPIO_TogglePin(LEDX_PIN, LEDX_PORT);
+	while(1)
+	{
+		CheckButton();
 
-		DelayUS(dvalue);
+		if(meas_on_flag == true)
+		{
+			isolation_measurement();
+		}
 	}
 
 }
@@ -100,9 +80,18 @@ int main(){
 void CheckButton(void){
 	if(GPIO_ReadPin(BUTTON_PIN, BUTTON_PORT)){
 		while(GPIO_ReadPin(BUTTON_PIN, BUTTON_PORT)){
-			DelayUS(10);
+			DelayUS(100);
 		}
 		/* Do somesthing */
-		GPIO_TogglePin(LD1_PIN, LD_PORT);
+		GPIO_TogglePin(LD3_PIN, LD_PORT);
+
+		if(meas_on_flag == false)
+		{
+			meas_on_flag = true;
+		}
+		else
+		{
+			meas_on_flag = false;
+		}
 	}
 }

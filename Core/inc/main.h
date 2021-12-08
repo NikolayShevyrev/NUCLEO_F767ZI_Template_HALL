@@ -37,6 +37,20 @@ enum States {
 #define LD3_PIN 14
 #define LD_PORT GPIOB
 
+/**
+ *  Relays
+ */
+
+#define RELAY_1_OUT_PIN 4
+#define RELAY_2_OUT_PIN 5
+#define RELAY_OUT_PORT  GPIOE
+
+#define RELAY_1 4
+#define RELAY_2 5
+
+#define RELAY_ON(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << pin))
+#define RELAY_OFF(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << (pin+16)));
+
 #define LEDX_PIN	2
 #define LEDX_PORT	GPIOB
 
@@ -91,22 +105,8 @@ enum States {
 #define DAC2_PIN 5
 #define DAC_PORT GPIOA
 
-#define HALL1_OUT_PIN 4
-#define HALL2_OUT_PIN 5
-#define HALL3_OUT_PIN 6
-#define HALL_OUT_PORT GPIOE
 
-//HALL Inputs
-#define HALL1_IN_PIN 15
-#define HALL2_IN_PIN 3
-#define HALL3_IN_PIN 10
-#define HALL1_IN_PORT GPIOA
-#define HALL23_IN_PORT GPIOB
 
-// UART
-#define UART4_RX_PIN 0
-#define UART4_TX_PIN 1
-#define UART4_PORT GPIOD
 
 
 #endif /* CORE_INC_MAIN_H_ */

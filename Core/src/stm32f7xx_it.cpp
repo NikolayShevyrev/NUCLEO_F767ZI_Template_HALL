@@ -7,7 +7,11 @@
 
 #include "main.h"
 #include "stm32f7xx_it.h"
+#include "systick.h"
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 /******************************************************************************/
 /*           Cortex-M7 Processor Interruption and Exception Handlers          */
@@ -89,5 +93,10 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-
+	delay_decrement();
 }
+
+#ifdef __cplusplus
+}
+#endif
+
