@@ -14,13 +14,6 @@
 void ADC_Init();
 void ADCPins_Init();
 
-static inline void BEMFPullHigh(){
-	GPIO_SetPin(GPIO_BEMF_PIN, GPIO_BEMF_PORT);
-}
-
-static inline void BEMFPullLow(){
-	GPIO_ResetPin(GPIO_BEMF_PIN, GPIO_BEMF_PORT);
-}
 
 static inline void ADCSwitchBEMFChannel(uint16_t sector){
 
@@ -50,6 +43,22 @@ static inline void ADC1StartConv(){
 
 static inline void ADC2StartConv(){
 	SET_BIT(ADC2->CR2, ADC_CR2_SWSTART);
+}
+
+static inline void ADC1StartInjConv(){
+	SET_BIT(ADC1->CR2, ADC_CR2_JSWSTART);
+}
+
+static inline void ADC2StartInjConv(){
+	SET_BIT(ADC2->CR2, ADC_CR2_JSWSTART);
+}
+
+static inline void ADC1Wait(){
+	while(!READ_BIT(ADC1->SR, ADC_SR_JEOC));
+}
+
+static inline void ADC2Wait(){
+	while(!READ_BIT(ADC2->SR, ADC_SR_JEOC));
 }
 
 static inline void ADC3StartConv(){

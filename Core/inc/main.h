@@ -14,14 +14,9 @@
 
 /* Function prototypes -------------------------------------------------------*/
 void SystemClock_Config(void);
+bool insulation_measurement(void);
+uint32_t measure_voltage(ADC_TypeDef * adc_base);
 
-enum States {
-	StoppedState,
-	StartingState,
-	RunningState,
-	StoppingState,
-	FaultState
-};
 
 /* Defines -------------------------------------------------------------------*/
 #define FPWM (uint16_t)20000
@@ -45,11 +40,11 @@ enum States {
 #define RELAY_2_OUT_PIN 5
 #define RELAY_OUT_PORT  GPIOE
 
-#define RELAY_1 4
-#define RELAY_2 5
+#define RELAY_POS 4
+#define RELAY_NEG 5
 
-#define RELAY_ON(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << pin))
-#define RELAY_OFF(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << (pin+16)));
+#define RELAY_CLOSE(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << pin))
+#define RELAY_OPEN(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << (pin+16)));
 
 #define LEDX_PIN	2
 #define LEDX_PORT	GPIOB
@@ -58,47 +53,17 @@ enum States {
 #define BUTTON_PIN 13
 #define BUTTON_PORT GPIOC
 
-// PWM Outputs
-#define UH_PIN	8
-#define UH_PORT	GPIOA
-#define UL_PIN	15
-#define UL_PORT	GPIOB
-#define VH_PIN	9
-#define VH_PORT	GPIOA
-#define VL_PIN	0
-#define VL_PORT	GPIOB
-#define WH_PIN	10
-#define WH_PORT	GPIOA
-#define WL_PIN	1
-#define WL_PORT	GPIOB
-
-// Tim1 Inputs
-#define CPOUT_PIN	12
-#define CPOUT_PORT	GPIOA
-#define BKIN_PIN	6
-#define BKIN_PORT	GPIOA
 
 // BEMF
-#define BEMF1_PIN	3
-#define BEMF1_PORT	GPIOC
-#define BEMF2_PIN	4
-#define BEMF2_PORT	GPIOC
-#define BEMF3_PIN	5
-#define BEMF3_PORT	GPIOC
-#define GPIO_BEMF_PIN	9
-#define GPIO_BEMF_PORT	GPIOC
+#define VPOS_PIN	0
+#define VNEG_PIN	1
+#define V_MEAS_PORT	GPIOC
 
-// Feedback inputs
-#define CURR_A_PIN	0
-#define CURR_A_PORT GPIOA
-#define CURR_B_PIN  1
-#define CURR_B_PORT GPIOC
-#define CURR_C_PIN  0
-#define CURR_C_PORT GPIOC
-#define VBUS_PIN  	1
-#define VBUS_PORT 	GPIOA
-#define TEMP_PIN	2
-#define TEMP_PORT	GPIOC
+#define VPOS ADC1
+#define VNEG ADC2
+
+#define VREF 2048
+
 
 // DAC Outputs
 #define DAC1_PIN 4

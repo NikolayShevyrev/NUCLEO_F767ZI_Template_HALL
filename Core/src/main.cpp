@@ -17,27 +17,6 @@
 void CheckButton(void);
 
 
-void isolation_measurement(void)
-{
-	RELAY_ON(RELAY_1);
-
-	delay_ms(500);
-
-	RELAY_OFF(RELAY_1);
-	RELAY_OFF(RELAY_2);
-
-	delay_ms(500);
-
-	RELAY_ON(RELAY_2);
-
-	delay_ms(500);
-
-	RELAY_OFF(RELAY_1);
-	RELAY_OFF(RELAY_2);
-
-	delay_ms(500);
-}
-
 bool meas_on_flag = false;
 
 /**
@@ -51,11 +30,10 @@ int main(){
 
 	GPIO_Init();
 
-	//ADC_Init();
+	ADC_Init();
 
-	//AllADCsOn();
-
-	//AllADCsStartConv();
+	ADC1On();
+	ADC2On();
 
 	systick_config();
 
@@ -66,7 +44,7 @@ int main(){
 
 		if(meas_on_flag == true)
 		{
-			isolation_measurement();
+			insulation_measurement();
 		}
 	}
 
