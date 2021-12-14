@@ -50,7 +50,7 @@ bool insulation_measurement(void)
 
 	delay_ms(50);
 
-	/* Turn on Pos Relay and measure iso_pos and iso_neg */
+	/* Turn on Pos Relay */
 	RELAY_CLOSE(RELAY_POS);
 
 	delay_ms(50);
@@ -60,90 +60,30 @@ bool insulation_measurement(void)
 
 	delay_ms(50);
 
-	if(iso_pos == VREF) // todo: filter noise
-	{	/* Turn on Neg Relay (Both Relays closed) and measure iso_pos and iso_neg */
-		RELAY_CLOSE(RELAY_NEG);
+	/* Turn on Neg Relay (Both Relays closed) */
+	RELAY_CLOSE(RELAY_NEG);
 
-		delay_ms(50);
+	delay_ms(50);
 
-		iso_pos = measure_voltage(VPOS);
-		iso_neg = measure_voltage(VNEG);
+	iso_pos = measure_voltage(VPOS);
+	iso_neg = measure_voltage(VNEG);
 
-		delay_ms(50);
+	delay_ms(50);
 
-		/* Turn off Pos Relay (Only Neg Relay Closed) and measure iso_pos and iso_neg */
-		RELAY_OPEN(RELAY_POS);
+	/* Turn off Pos Relay (Only Neg Relay Closed) */
+	RELAY_OPEN(RELAY_POS);
 
-		delay_ms(50);
+	delay_ms(50);
 
-		iso_pos = measure_voltage(VPOS);
-		iso_neg = measure_voltage(VNEG);
+	iso_pos = measure_voltage(VPOS);
+	iso_neg = measure_voltage(VNEG);
 
-		delay_ms(50);
+	delay_ms(50);
 
-		if (iso_neg == VREF)
-		{
-			/* No Error identified, Turn off Neg Relay */
-			RELAY_OPEN(RELAY_NEG);
-		}
-		else
-		{
-			/* Negative Error */
-			RELAY_OPEN(RELAY_NEG);
-			while(1)
-			{
-				/* Start Error Handling */
-			}
-		}
-	}
-	else
-	{
-		if(iso_pos > VREF)
-		{
-			/* Confirm Isolation Positive Error */
-		}
-		/* Turn on Neg Relay (Both Relays closed) and measure iso_pos and iso_neg */
-		RELAY_CLOSE(RELAY_NEG);
-
-		delay_ms(50);
-
-		iso_pos = measure_voltage(VPOS);
-		iso_neg = measure_voltage(VNEG);
-
-		delay_ms(50);
-
-		/* Turn off Pos Relay (Only Neg Relay Closed) and measure iso_pos and iso_neg */
-		RELAY_OPEN(RELAY_POS);
-
-		delay_ms(50);
-
-		iso_pos = measure_voltage(VPOS);
-		iso_neg = measure_voltage(VNEG);
-
-		delay_ms(50);
-
-		if (iso_neg == VREF)
-		{
-			/* Confirm Isolation Positive Error, Turn off Neg Relay */
-			RELAY_OPEN(RELAY_NEG);
-			while(1)
-			{
-				/* Start Error Handling */
-			}
-		}
-		else
-		{
-			/* Negative Error */
-			RELAY_OPEN(RELAY_NEG);
-			while(1)
-			{
-				/* Start Error Handling */
-			}
-		}
-
-	}
-
-	return;
+	/* Turn off Neg Relay */
+	RELAY_OPEN(RELAY_NEG);
+	
+	return true;
 }
 
 

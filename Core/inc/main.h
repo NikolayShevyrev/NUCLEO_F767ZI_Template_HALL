@@ -43,7 +43,7 @@ uint32_t measure_voltage(ADC_TypeDef * adc_base);
 #define RELAY_POS 4
 #define RELAY_NEG 5
 
-#define RELAY_CLOSE(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << pin))
+#define RELAY_CLOSE(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << pin));
 #define RELAY_OPEN(pin) SET_BIT(GPIOE->BSRR, (GPIO_BSRR_BS0  << (pin+16)));
 
 #define LEDX_PIN	2
