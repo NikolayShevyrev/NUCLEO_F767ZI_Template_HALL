@@ -9,6 +9,7 @@
 
 #include "main.h"
 #include "systick.h"
+#include <array>
 
 
 /**
@@ -16,7 +17,7 @@
  *
  * @return uint32_t
  */
-uint32_t measure_voltage(ADC_TypeDef * adc_base)
+float measure_voltage(ADC_TypeDef * adc_base)
 {
 	uint32_t result = 0;
 
@@ -30,8 +31,12 @@ uint32_t measure_voltage(ADC_TypeDef * adc_base)
 
 	result = result >> 2;
 
-	return result;
+	return ((float)result) * ADC_COEFF;
 }
+
+extern uint32_t iso_meas_delay;
+extern std::array<float, 4> iso_pos;
+extern std::array<float, 4> iso_neg;
 
 /**
  * @brief Isolation measurement
@@ -39,46 +44,44 @@ uint32_t measure_voltage(ADC_TypeDef * adc_base)
  */
 bool insulation_measurement(void)
 {
-	uint32_t iso_pos = 0;
-	uint32_t iso_neg = 0;
 
-	delay_ms(50);
+	delay_ms(iso_meas_delay);
 
 	/* Check initial values */
-	iso_pos = measure_voltage(VPOS);
-	iso_neg = measure_voltage(VNEG);
+	iso_pos[0] = measure_voltage(VPOS);
+	iso_neg[0] = measure_voltage(VNEG);
 
-	delay_ms(50);
+	delay_ms(iso_meas_delay);
 
 	/* Turn on Pos Relay */
 	RELAY_CLOSE(RELAY_POS);
 
-	delay_ms(50);
+	delay_ms(iso_meas_delay);
 
-	iso_pos = measure_voltage(VPOS);
-	iso_neg = measure_voltage(VNEG);
+	iso_pos[1] = measure_voltage(VPOS);
+	iso_neg[1] = measure_voltage(VNEG);
 
-	delay_ms(50);
+	delay_ms(iso_meas_delay);
 
 	/* Turn on Neg Relay (Both Relays closed) */
 	RELAY_CLOSE(RELAY_NEG);
 
-	delay_ms(50);
+	delay_ms(iso_meas_delay);
 
-	iso_pos = measure_voltage(VPOS);
-	iso_neg = measure_voltage(VNEG);
+	iso_pos[2] = measure_voltage(VPOS);
+	iso_neg[2] = measure_voltage(VNEG);
 
-	delay_ms(50);
+	delay_ms(iso_meas_delay);
 
 	/* Turn off Pos Relay (Only Neg Relay Closed) */
 	RELAY_OPEN(RELAY_POS);
 
-	delay_ms(50);
+	delay_ms(iso_meas_delay);
 
-	iso_pos = measure_voltage(VPOS);
-	iso_neg = measure_voltage(VNEG);
+	iso_pos[3] = measure_voltage(VPOS);
+	iso_neg[3] = measure_voltage(VNEG);
 
-	delay_ms(50);
+	delay_ms(iso_meas_delay);
 
 	/* Turn off Neg Relay */
 	RELAY_OPEN(RELAY_NEG);

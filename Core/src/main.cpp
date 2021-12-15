@@ -11,6 +11,7 @@
 #include "adc.h"
 #include "dfilter.h"
 #include "systick.h"
+#include <array>
 
 
 /* Function prototypes -----------------------------------------------*/
@@ -18,6 +19,10 @@ void CheckButton(void);
 
 
 bool meas_on_flag = false;
+
+std::array<float, 4> iso_pos;
+std::array<float, 4> iso_neg;
+uint32_t iso_meas_delay = 200;
 
 /**
   * @brief  The application entry point.

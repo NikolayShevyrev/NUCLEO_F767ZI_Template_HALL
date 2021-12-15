@@ -15,7 +15,9 @@
 /* Function prototypes -------------------------------------------------------*/
 void SystemClock_Config(void);
 bool insulation_measurement(void);
-uint32_t measure_voltage(ADC_TypeDef * adc_base);
+float measure_voltage(ADC_TypeDef * adc_base);
+
+#define ADC_COEFF 0.0008056641F
 
 
 /* Defines -------------------------------------------------------------------*/
