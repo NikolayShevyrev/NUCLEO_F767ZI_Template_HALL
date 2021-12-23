@@ -47,9 +47,7 @@ int main(){
 
 	systick_config();
 
-	im.run();
-	rp_filter.FillBuffer(im.get_r_iso_p());
-	rn_filter.FillBuffer(im.get_r_iso_n());
+	im.calibrate(10);
 
 	/* Infinite loop */
 	while(1)
@@ -64,8 +62,6 @@ int main(){
 		}
 		*/
 		im.run();
-		rp = rp_filter.Calc(im.get_r_iso_p());
-		rn = rn_filter.Calc(im.get_r_iso_n());
 	}
 
 }

@@ -48,11 +48,11 @@ float insulation_measurement::measure_voltage(ADC_TypeDef * adc_base)
 bool insulation_measurement::run(void)
 {
 
-	delay_ms(iso_meas_delay_);
+	/*delay_ms(iso_meas_delay_);*/
 
 	/* Check initial values */
-	iso_pos.ref = measure_voltage(VPOS);
-	iso_neg.ref = measure_voltage(VNEG);
+	/*iso_pos.ref = measure_voltage(VPOS);
+	iso_neg.ref = measure_voltage(VNEG);*/
 
 	delay_ms(iso_meas_delay_);
 
@@ -61,8 +61,8 @@ bool insulation_measurement::run(void)
 
 	delay_ms(iso_meas_delay_);
 
-	iso_pos.s1 = measure_voltage(VPOS);
-	iso_neg.s1 = measure_voltage(VNEG);
+	iso_pos.s1 = measure_voltage(VPOS) - offset_p_;
+	iso_neg.s1 = measure_voltage(VNEG) - offset_n_;
 
 	delay_ms(iso_meas_delay_);
 
@@ -71,8 +71,8 @@ bool insulation_measurement::run(void)
 
 	delay_ms(iso_meas_delay_);
 
-	iso_pos.s1_s2 = measure_voltage(VPOS);
-	iso_neg.s1_s2 = measure_voltage(VNEG);
+	iso_pos.s1_s2 = measure_voltage(VPOS) - offset_p_;
+	iso_neg.s1_s2 = measure_voltage(VNEG) - offset_n_;
 
 	delay_ms(iso_meas_delay_);
 
@@ -81,8 +81,8 @@ bool insulation_measurement::run(void)
 
 	delay_ms(iso_meas_delay_);
 
-	iso_pos.s2 = measure_voltage(VPOS);
-	iso_neg.s2 = measure_voltage(VNEG);
+	iso_pos.s2 = measure_voltage(VPOS) - offset_p_;
+	iso_neg.s2 = measure_voltage(VNEG) - offset_n_;
 
 	delay_ms(iso_meas_delay_);
 
@@ -141,4 +141,25 @@ void insulation_measurement::calc_r_iso_n()
 {
 	r_iso_n_ =  (dc_voltage_ * dc_voltage_ * r_s2_ + dc_voltage_ * r_s2_ * beta_ - dc_voltage_ * r_s2_ * alpha_)/
 		   	    (dc_voltage_ * iso_neg.ref - dc_voltage_ * alpha_ + iso_neg.ref * beta_ - iso_neg.ref * alpha_);
+}
+
+/**
+ * @brief Calibrate ref voltage
+ * 
+ */
+void insulation_measurement::calibrate(uint32_t count)
+{
+	float ref_p;
+	float ref_n;
+	for (uint32_t i = 0; i < count; i++)
+	{
+		ref_p += measure_voltage(VPOS);
+		ref_n += measure_voltage(VNEG);
+	}
+
+	iso_pos.ref = 1.5F;
+	iso_neg.ref = 1.5F;
+
+	offset_p_ = ref_p/count - 1.5F;
+	offset_n_ = ref_n/count - 1.5F;
 }

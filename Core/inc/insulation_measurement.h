@@ -25,6 +25,9 @@ private:
     iso_voltage iso_pos;
     iso_voltage iso_neg;
 
+    float offset_p_;
+    float offset_n_;
+
     /* Hardware parameters */
     float r_s1_;
     float r_s2_;
@@ -51,6 +54,8 @@ public:
     insulation_measurement operator=(const insulation_measurement& obj) = delete;
 
     bool run(void);
+
+    void calibrate(uint32_t count);
 
     float get_r_iso_p(void) const { return r_iso_p_; }
 
