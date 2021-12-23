@@ -5,24 +5,30 @@
  *      Author: Nikolay Shevyrev
  */
 
+
 #include "main.h"
 #include "delay.h"
 #include "gpio.h"
 #include "adc.h"
 #include "dfilter.h"
 #include "systick.h"
-#include <array>
+#include "insulation_measurement.h"
+
 
 
 /* Function prototypes -----------------------------------------------*/
 void CheckButton(void);
 
+insulation_measurement im(5100, 1205880, 300, 500);
+
+dFilter<float, 8> rp_filter;
+dFilter<float, 8> rn_filter;
+
+float rp = 0;
+float rn = 0;
 
 bool meas_on_flag = false;
 
-std::array<float, 4> iso_pos;
-std::array<float, 4> iso_neg;
-uint32_t iso_meas_delay = 200;
 
 /**
   * @brief  The application entry point.
@@ -31,7 +37,6 @@ uint32_t iso_meas_delay = 200;
 int main(){
 
 	SystemClock_Config();
-
 
 	GPIO_Init();
 
@@ -42,15 +47,25 @@ int main(){
 
 	systick_config();
 
+	im.run();
+	rp_filter.FillBuffer(im.get_r_iso_p());
+	rn_filter.FillBuffer(im.get_r_iso_n());
+
 	/* Infinite loop */
 	while(1)
 	{
 		CheckButton();
 
-		if(meas_on_flag == true)
+		/*if(meas_on_flag == true)
 		{
-			insulation_measurement();
+			im.run();
+			meas_on_flag = false;
+			GPIO_ResetPin(LD3_PIN, LD_PORT);
 		}
+		*/
+		im.run();
+		rp = rp_filter.Calc(im.get_r_iso_p());
+		rn = rn_filter.Calc(im.get_r_iso_n());
 	}
 
 }
@@ -66,15 +81,17 @@ void CheckButton(void){
 			DelayUS(100);
 		}
 		/* Do somesthing */
-		GPIO_TogglePin(LD3_PIN, LD_PORT);
+		//GPIO_TogglePin(LD3_PIN, LD_PORT);
 
 		if(meas_on_flag == false)
 		{
 			meas_on_flag = true;
+			GPIO_SetPin(LD3_PIN, LD_PORT);
 		}
 		else
 		{
 			meas_on_flag = false;
+			GPIO_ResetPin(LD3_PIN, LD_PORT);
 		}
 	}
 }
